@@ -1,11 +1,16 @@
 package tests;
 
+import com.codeborne.selenide.logevents.SelenideLogger;
 import com.github.javafaker.Faker;
 
 import com.codeborne.selenide.Configuration;
+import helpers.Attach;
+import io.qameta.allure.selenide.AllureSelenide;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import org.openqa.selenium.remote.DesiredCapabilities;
 import pages.RegistrationPage;
 
 import static io.qameta.allure.Allure.step;
@@ -34,8 +39,15 @@ public class FormTests {
 
     @BeforeAll
     static void setUpConfig() {
-        Configuration.browser = "chrome";
+        SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
+
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("enableVNC", true);
+        capabilities.setCapability("enableVideo", true);
+
+        Configuration.browserCapabilities = capabilities;
         Configuration.startMaximized = true;
+        Configuration.remote = "https://user1:1234@selenoid.autotests.cloud/wd/hub/";
     }
 
     @Test
@@ -83,5 +95,14 @@ public class FormTests {
         step("Check results", () -> {
             registrationPage.checkRegistrationResults(firstName, lastName, email, gender, phoneNumber, day, month, year, subject, hobby, picture, address, state, city);
         });
+    }
+
+    @AfterEach
+    public void tearDown() {
+        Attach.screenshotAs("Last screenshot");
+        Attach.pageSource();
+        Attach.browserConsoleLogs();
+        Attach.addVideo();
+
     }
 }
