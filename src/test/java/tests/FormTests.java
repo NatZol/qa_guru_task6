@@ -14,6 +14,8 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import pages.RegistrationPage;
 
 import static io.qameta.allure.Allure.step;
+import static java.lang.String.format;
+import static config.Credentials.credentials;
 
 public class FormTests {
 
@@ -39,15 +41,19 @@ public class FormTests {
 
     @BeforeAll
     static void setUpConfig() {
+
+        String login = credentials.login();
+        String password = credentials.password();
+
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("enableVNC", true);
         capabilities.setCapability("enableVideo", true);
-
         Configuration.browserCapabilities = capabilities;
+
         Configuration.startMaximized = true;
-        Configuration.remote = "https://user1:1234@selenoid.autotests.cloud/wd/hub/";
+        Configuration.remote = format("https://%s:%s@" + System.getProperty("url"), login, password);
     }
 
     @Test
